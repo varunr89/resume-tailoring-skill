@@ -1029,3 +1029,132 @@ Your preference?"
 - Library small → Work with available + emphasize discovery
 - Matches weak → Transparent gap identification
 - Generation fails → Provide markdown + error details
+
+## Usage Examples
+
+**Example 1: Internal Role (Same Company)**
+```
+USER: "I want to apply for Principal PM role in 1ES team at Microsoft.
+      Here's the JD: {paste}"
+
+SKILL:
+1. Library Build: Finds 29 resumes
+2. Research: Microsoft 1ES team, internal culture, role benchmarking
+3. Template: Features PM2 Azure Eng Systems role (most relevant)
+4. Discovery: Surfaces VS Code extension, Bhavana AI side project
+5. Assembly: 92% JD coverage, 75% direct matches
+6. Generate: MD + DOCX + Report
+7. User approves → Library updated with new resume + 6 discovered experiences
+
+RESULT: Highly competitive application leveraging internal experience
+```
+
+**Example 2: Career Transition (Different Domain)**
+```
+USER: "I'm a TPM trying to transition to ecology PM role. JD: {paste}"
+
+SKILL:
+1. Library Build: Finds existing TPM resumes
+2. Research: Ecology sector, sustainability focus, cross-domain transfers
+3. Template: Reframes "Technical Program Manager" → "Program Manager,
+             Environmental Systems" emphasizing systems thinking
+4. Discovery: Surfaces volunteer conservation work, graduate research in
+             environmental modeling
+5. Assembly: 65% JD coverage - flags gaps in domain-specific knowledge
+6. Generate: Resume + gap analysis with cover letter recommendations
+
+RESULT: Bridges technical skills with environmental domain
+```
+
+**Example 3: Career Gap Handling**
+```
+USER: "I have a 2-year gap while starting a company. JD: {paste}"
+
+SKILL:
+1. Library Build: Finds pre-gap resumes
+2. Research: Standard analysis
+3. Template: Includes startup as legitimate role
+4. Discovery: Surfaces skills developed during startup (fundraising,
+             product development, team building)
+5. Assembly: Frames gap as entrepreneurial experience
+6. Generate: Resume presenting gap as valuable experience
+
+RESULT: Gap becomes strength showing initiative and diverse skills
+```
+
+## Testing Guidelines
+
+**Manual Testing Checklist:**
+
+**Test 1: Happy Path**
+```
+- Provide JD with clear requirements
+- Library with 10+ resumes
+- Run all phases without skipping
+- Verify generated files
+- Check library update
+PASS CRITERIA:
+- All files generated correctly
+- JD coverage >70%
+- No errors in any phase
+```
+
+**Test 2: Minimal Library**
+```
+- Provide only 2 resumes
+- Run through workflow
+- Verify gap handling
+PASS CRITERIA:
+- Graceful warning about limited library
+- Still produces reasonable output
+- Gaps clearly identified
+```
+
+**Test 3: Research Failures**
+```
+- Use obscure company with minimal online presence
+- Verify fallback to JD-only
+PASS CRITERIA:
+- Warning about limited research
+- Proceeds with JD analysis
+- Template still reasonable
+```
+
+**Test 4: Experience Discovery Value**
+```
+- Run with deliberate gaps in library
+- Conduct experience discovery
+- Verify new experiences integrated
+PASS CRITERIA:
+- Discovers genuine undocumented experiences
+- Integrates into final resume
+- Improves JD coverage
+```
+
+**Test 5: Title Reframing**
+```
+- Test various role transitions
+- Verify title reframing suggestions
+PASS CRITERIA:
+- Multiple options provided
+- Truthfulness maintained
+- Rationales clear
+```
+
+**Test 6: Multi-format Generation**
+```
+- Generate MD, DOCX, PDF, Report
+- Verify formatting consistency
+PASS CRITERIA:
+- All formats readable
+- Formatting professional
+- Content identical across formats
+```
+
+**Regression Testing:**
+```
+After any SKILL.md changes:
+1. Re-run Test 1 (happy path)
+2. Verify no functionality broken
+3. Commit only if passes
+```
