@@ -1,0 +1,16 @@
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test outputs
+test-outputs/
+*.test.md
+
+# Temporary files
+*.tmp
+*.bak
+*~
