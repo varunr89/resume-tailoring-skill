@@ -34,7 +34,7 @@ This Claude Code skill generates high-quality, tailored resumes optimized for sp
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/varunramesh/resume-tailoring-skill.git ~/.claude/skills/resume-tailoring
+   git clone https://github.com/varunr89/resume-tailoring-skill.git ~/.claude/skills/resume-tailoring
    ```
 
 2. **Verify installation:**
