@@ -733,3 +733,273 @@ To resume later, say 'resume batch {batch_id}' or 'continue my batch'."
 ```
 
 Save batch state with current progress.
+
+## Phase 4: Batch Finalization
+
+**Goal:** Present all resumes for review, handle batch-level actions, update library
+
+**4.1 Generate Batch Summary:**
+
+Create `_batch_summary.md`:
+
+```markdown
+# Batch Summary
+**Batch ID:** batch-2025-11-04-job-search
+**Created:** 2025-11-04T10:30:00Z
+**Completed:** 2025-11-04T14:15:00Z
+**Total Time:** 3 hours 45 minutes
+
+## Job Summaries
+
+### Job 1: Principal PM - Microsoft 1ES
+- **Status:** Completed ✓
+- **Coverage:** 85%
+- **Direct Matches:** 78%
+- **Key Strengths:** Azure infrastructure, cross-functional leadership, CI/CD
+- **Remaining Gaps:** None critical
+- **Files:**
+  - Varun_Ramesh_Microsoft_1ES_Principal_PM_Resume.md
+  - Varun_Ramesh_Microsoft_1ES_Principal_PM_Resume.docx
+  - Varun_Ramesh_Microsoft_1ES_Principal_PM_Resume_Report.md
+
+### Job 2: Senior TPM - Google Cloud Infrastructure
+- **Status:** Completed ✓
+- **Coverage:** 88%
+- **Direct Matches:** 72%
+- **Key Strengths:** Kubernetes experience, distributed systems, technical depth
+- **Remaining Gaps:** GCP-specific (low priority, addressed in summary)
+- **Files:**
+  - Varun_Ramesh_Google_Cloud_Senior_TPM_Resume.md
+  - Varun_Ramesh_Google_Cloud_Senior_TPM_Resume.docx
+  - Varun_Ramesh_Google_Cloud_Senior_TPM_Resume_Report.md
+
+### Job 3: Senior PM - AWS Container Services
+- **Status:** Completed ✓
+- **Coverage:** 78%
+- **Direct Matches:** 68%
+- **Key Strengths:** Container orchestration, program management, technical leadership
+- **Remaining Gaps:** AWS-specific (noted in cover letter recommendations)
+- **Files:**
+  - Varun_Ramesh_AWS_Container_Senior_PM_Resume.md
+  - Varun_Ramesh_AWS_Container_Senior_PM_Resume.docx
+  - Varun_Ramesh_AWS_Container_Senior_PM_Resume_Report.md
+
+## Batch Statistics
+
+### Discovery Impact
+- **New experiences discovered:** 5
+- **Experiences integrated:** 5
+- **Average coverage improvement:** +16%
+- **Time saved vs sequential:** ~15 minutes (shared discovery)
+
+### Coverage Metrics
+- **Average JD coverage:** 84%
+- **Average direct matches:** 73%
+- **Total files created:** 9 (3 × MD + DOCX + Report)
+
+### Gap Resolution
+- **Starting gaps:** 14 unique gaps
+- **Gaps resolved through discovery:** 9
+- **Remaining gaps:** 5
+  - 0 critical (100% critical gap resolution)
+  - 2 important (50% important gap resolution)
+  - 3 job-specific (handled in cover letters)
+
+## Files Location
+
+```
+resumes/batches/batch-2025-11-04-job-search/
+├── _batch_state.json
+├── _aggregate_gaps.md
+├── _discovered_experiences.md
+├── _batch_summary.md (this file)
+├── job-1-microsoft/
+│   ├── success_profile.md
+│   ├── template.md
+│   ├── content_mapping.md
+│   ├── Varun_Ramesh_Microsoft_1ES_Principal_PM_Resume.md
+│   ├── Varun_Ramesh_Microsoft_1ES_Principal_PM_Resume.docx
+│   └── Varun_Ramesh_Microsoft_1ES_Principal_PM_Resume_Report.md
+├── job-2-google/
+│   └── (same structure, 6 files)
+└── job-3-aws/
+    └── (same structure, 6 files)
+```
+
+## Recommendations
+
+### Interview Prep
+- Prepare Kubernetes stories (appears in all 3 jobs)
+- Emphasize cross-functional leadership
+- Practice articulating CI/CD experience with metrics
+
+### Cover Letter Focus
+- Job 1 (Microsoft): Emphasize internal Azure knowledge, 1ES mission alignment
+- Job 2 (Google): Address GCP learning plan, highlight distributed systems thinking
+- Job 3 (AWS): Address AWS learning plan, emphasize container orchestration transferability
+
+### Application Priority
+Based on coverage scores and fit:
+1. **Job 2 (Google):** Highest coverage (88%), strong technical fit
+2. **Job 1 (Microsoft):** Strong coverage (85%), internal opportunity
+3. **Job 3 (AWS):** Good coverage (78%), but more gaps to address in materials
+```
+
+**4.2 Present to User:**
+
+```
+"All 3 resumes generated! 🎉
+
+JOB SUMMARIES:
+┌─────────────────────────────────────────────────────────────┐
+│ Job 1: Principal PM - Microsoft 1ES                         │
+│ Coverage: 85% | Direct: 78% | Files: ✓ MD ✓ DOCX ✓ Report │
+│ Key strengths: Azure infra, cross-functional leadership     │
+│ Remaining gaps: None critical                               │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│ Job 2: Senior TPM - Google Cloud Infrastructure            │
+│ Coverage: 88% | Direct: 72% | Files: ✓ MD ✓ DOCX ✓ Report │
+│ Key strengths: Kubernetes, distributed systems             │
+│ Remaining gaps: GCP-specific (low priority)                │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│ Job 3: Senior PM - AWS Container Services                  │
+│ Coverage: 78% | Direct: 68% | Files: ✓ MD ✓ DOCX ✓ Report │
+│ Key strengths: Container orchestration, program mgmt        │
+│ Remaining gaps: AWS-specific (cover letter)                │
+└─────────────────────────────────────────────────────────────┘
+
+BATCH STATISTICS:
+- New experiences discovered: 5
+- Average coverage improvement: +16%
+- Total files: 9 (3 jobs × MD + DOCX + Report)
+- Time saved vs sequential: ~15 minutes
+
+FILES: resumes/batches/batch-2025-11-04-job-search/
+
+REVIEW OPTIONS:
+1. APPROVE ALL - Save all resumes to library
+2. REVIEW INDIVIDUALLY - Approve/revise each resume separately
+3. REVISE BATCH - Make changes across multiple resumes
+4. SAVE BUT DON'T UPDATE LIBRARY - Keep files, don't enrich library
+
+Which option? (1/2/3/4)"
+```
+
+**4.3 Handle Review Option 1 (APPROVE ALL):**
+
+```
+User chooses: 1
+
+Process:
+1. Copy all resume files to library directory
+2. Add all discovered experiences to library database
+3. Tag with metadata (batch_id, target_company, target_role, etc.)
+4. Rebuild library indices
+5. Update batch state to "completed"
+
+Output:
+"✓ All resumes saved to library!
+
+LIBRARY UPDATED:
+- New resumes: 3
+- New experiences: 5
+- Total resumes in library: 32
+
+These experiences are now available for future applications.
+
+Good luck with your applications! 🚀"
+```
+
+**4.4 Handle Review Option 2 (REVIEW INDIVIDUALLY):**
+
+```
+User chooses: 2
+
+For each job:
+  Show JD requirements vs resume coverage
+  Highlight newly discovered experiences used
+  Ask: "Approve Job {N}? (Y/N/revise)"
+
+  If Y: Add to library
+  If N: Don't add to library
+  If revise: Collect feedback, make changes, re-ask
+
+After all reviewed:
+"Review complete!
+
+LIBRARY UPDATED:
+- Approved resumes: {N}
+- Skipped resumes: {M}
+- Revised resumes: {K}
+
+Total resumes in library: {count}"
+```
+
+**4.5 Handle Review Option 3 (REVISE BATCH):**
+
+```
+User chooses: 3
+
+Prompt:
+"What would you like to change across the batch?
+
+COMMON BATCH REVISIONS:
+- 'Make all summaries shorter'
+- 'Emphasize leadership more in all resumes'
+- 'Remove mentions of X technology from all'
+- 'Use title \"Senior Technical Program Manager\" consistently'
+- 'Add bullets about Y experience to all resumes'
+
+Your revision request:"
+
+Process:
+1. Collect revision request
+2. Determine which jobs affected
+3. Re-run matching/generation for affected jobs
+4. Present revised resumes
+5. Ask for approval again
+
+Loop until user approves or cancels.
+```
+
+**4.6 Handle Review Option 4 (SAVE BUT DON'T UPDATE LIBRARY):**
+
+```
+User chooses: 4
+
+Output:
+"✓ Files saved to: resumes/batches/batch-2025-11-04-job-search/
+
+Not added to library. You can manually move them later if desired.
+
+Batch state preserved for future reference."
+```
+
+**4.7 Update Final Batch State:**
+
+```json
+{
+  "batch_id": "batch-2025-11-04-job-search",
+  "current_phase": "completed",
+  "completed_at": "2025-11-04T14:15:00Z",
+  "jobs": [
+    {
+      "job_id": "job-1",
+      "status": "completed",
+      "files_generated": true,
+      "added_to_library": true
+    }
+  ],
+  "statistics": {
+    "total_jobs": 3,
+    "completed_jobs": 3,
+    "new_experiences": 5,
+    "average_coverage": 84,
+    "total_time_minutes": 225
+  }
+}
+```
