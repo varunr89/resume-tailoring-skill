@@ -1003,3 +1003,149 @@ Batch state preserved for future reference."
   }
 }
 ```
+
+## Incremental Batch Support
+
+**Goal:** Add new jobs to existing batches without re-doing completed work
+
+**Scenario:** User processes 3 jobs today, finds 2 more jobs next week
+
+**8.1 Detect Add Request:**
+
+User says:
+- "Add another job to my batch"
+- "I found 2 more jobs"
+- "Resume batch {batch_id} and add jobs"
+
+**8.2 Load Existing Batch:**
+
+```python
+# Pseudo-code
+batch = load_batch_state(batch_id)
+
+if batch.current_phase == "completed":
+    print("Batch already completed. Creating extension...")
+    batch.current_phase = "intake"  # Reopen for new jobs
+```
+
+**8.3 Intake New Jobs:**
+
+Same process as Phase 0, but:
+- Append to existing batch.jobs list
+- Assign new job_ids (continue numbering: job-4, job-5, etc.)
+
+```
+"Adding jobs to existing batch: {batch_id}
+
+CURRENT BATCH:
+- Job 1: Microsoft - Principal PM (completed ✓)
+- Job 2: Google - Senior TPM (completed ✓)
+- Job 3: AWS - Senior PM (completed ✓)
+
+NEW JOBS TO ADD:
+
+Provide job description for Job 4: [user input]
+[... collect JD, company, role, priority, notes ...]
+
+Add another job? (Y/N)
+```
+
+**8.4 Incremental Gap Analysis:**
+
+```
+"Running incremental gap analysis for new jobs...
+
+NEW JOBS:
+- Job 4 (Stripe): Payment Systems Engineer
+- Job 5 (Meta): Senior TPM
+
+COVERAGE WITH EXISTING LIBRARY:
+(Library now includes 5 experiences discovered in previous session)
+
+- Job 4 (Stripe): 82% coverage
+- Job 5 (Meta): 75% coverage
+
+NEW GAPS (not covered by previous discoveries):
+- Payment systems experience (Job 4 only) 🔵
+- Large-scale social networking (Job 5 only) 🔵
+- React/frontend (Jobs 4, 5) 🟡
+
+ALREADY COVERED FROM PREVIOUS BATCH:
+✓ Kubernetes (from previous batch)
+✓ CI/CD (from previous batch)
+✓ Cross-functional leadership (from previous batch)
+
+NEW GAP COUNT: 3 (vs 14 in original batch)
+Estimated discovery time: 5-10 minutes (vs 30-40 for original batch)
+
+Ready for incremental discovery? (Y/N)"
+```
+
+**8.5 Incremental Discovery:**
+
+Only ask about NEW gaps:
+
+```python
+# Pseudo-code
+previous_gaps = set(batch.aggregate_gaps.all_gap_names())
+new_gaps = []
+
+for job in new_jobs:
+    for gap in job.gaps:
+        if gap.name not in previous_gaps:
+            new_gaps.append(gap)
+
+# Run discovery ONLY for new_gaps
+conduct_discovery(new_gaps)
+```
+
+**Important:** Don't re-ask questions already answered in previous session.
+
+**8.6 Process New Jobs:**
+
+Run Phase 3 (per-job processing) for new jobs only:
+- Job 4: Research → Template → Matching → Generation
+- Job 5: Research → Template → Matching → Generation
+
+**8.7 Update Batch Summary:**
+
+Add new jobs to `_batch_summary.md`:
+
+```markdown
+## Incremental Addition (2025-11-11)
+
+Added 2 new jobs to batch after initial completion.
+
+### Job 4: Payment Systems Engineer - Stripe
+... [same format as original jobs]
+
+### Job 5: Senior TPM - Meta
+... [same format as original jobs]
+
+## Updated Statistics
+- Total jobs: 5 (original 3 + added 2)
+- New experiences discovered (incremental): 3
+- Total experiences discovered: 8
+```
+
+**8.8 Final Output:**
+
+```
+"Incremental batch processing complete!
+
+ORIGINAL BATCH (2025-11-04):
+✓ Job 1: Microsoft
+✓ Job 2: Google
+✓ Job 3: AWS
+
+NEW JOBS (2025-11-11):
+✓ Job 4: Stripe
+✓ Job 5: Meta
+
+NEW DISCOVERIES: 3
+TIME SAVED: ~25 minutes (avoided re-asking 8 previous gaps)
+
+All 5 resumes available in: resumes/batches/{batch_id}/
+
+Add to library? (Y/N)"
+```
