@@ -1149,3 +1149,233 @@ All 5 resumes available in: resumes/batches/{batch_id}/
 
 Add to library? (Y/N)"
 ```
+
+## Error Handling & Edge Cases
+
+### Edge Case 1: Jobs Are More Diverse Than Expected
+
+**Detection:** During gap analysis, <40% gap overlap between jobs
+
+**Scenario:** User provides 5 jobs, but they're quite different (TPM, Data Scientist, Product Marketing Manager)
+
+**Handling:**
+
+```
+"⚠️ I notice these jobs are quite diverse:
+
+JOB SIMILARITY ANALYSIS:
+- Jobs 1, 2 (TPM roles): 85% requirement overlap ✓
+- Jobs 3, 4 (Data Science): 80% requirement overlap ✓
+- Job 5 (Marketing): Only 20% overlap with others ⚠️
+
+RECOMMENDATION:
+Split into batches for better efficiency:
+- Batch A: Jobs 1, 2 (TPM-focused discovery)
+- Batch B: Jobs 3, 4 (Data Science-focused discovery)
+- Job 5: Process separately (single-job mode)
+
+OR proceed with unified discovery (will take longer, ~50 minutes)
+
+Your preference:
+1. Split into batches (recommended)
+2. Continue with unified discovery
+3. Remove dissimilar jobs"
+```
+
+### Edge Case 2: Discovery Reveals Experience Relevant to Only 1 Job
+
+**Scenario:** During discovery for "multi-job gap," user's answer only addresses one job
+
+**Example:**
+
+```
+SKILL: "Kubernetes appears in all 3 jobs. Have you worked with it?"
+USER: "Only in Azure (AKS), not GCP or AWS"
+
+HANDLING:
+"Got it - this addresses the Microsoft job (Azure AKS) but not Google (GKE)
+or AWS (EKS).
+
+I'll tag this as Microsoft-specific.
+
+Should I still explore Kubernetes more broadly? You might have experience
+with container orchestration concepts that transfer across cloud providers.
+
+Options:
+1. YES - Explore general container orchestration
+2. NO - Move to next gap
+
+Your choice? (1/2)"
+
+[If 1, branch to adjacent probe for container orchestration concepts]
+```
+
+### Edge Case 3: One Job's Research Fails
+
+**Scenario:** Company is obscure startup, minimal online presence
+
+**Handling:**
+
+```
+"⚠️ Limited research data for Job 3 (StartupXYZ):
+- No company website or information found
+- No LinkedIn profiles for similar roles
+- No news or press coverage
+
+FALLBACK: JD-only analysis for this job
+
+OPTIONS:
+1. CONTINUE - Proceed with JD-only (recommended)
+2. SKIP JOB 3 - Process others, come back later
+3. PROVIDE CONTEXT - You share company info manually
+4. REMOVE JOB 3 - Remove from batch entirely
+
+Other jobs (1, 2) have sufficient research data.
+
+Your preference? (1/2/3/4)"
+
+[Don't let one failure block the entire batch]
+```
+
+### Edge Case 4: User Wants to Add/Remove Jobs Mid-Process
+
+**Add Job Mid-Process:**
+
+```
+USER: "I want to add another job to the batch"
+
+SKILL: "Adding Job {N+1} to batch.
+
+CURRENT PHASE: {current_phase}
+
+Since we've already completed discovery:
+- If Job {N+1} has NEW gaps: We'll do quick incremental discovery
+- If existing discoveries cover it: Proceed directly to processing
+
+Let me collect the job details..."
+
+[Run quick gap check, incremental discovery if needed, then process]
+```
+
+**Remove Job Mid-Process:**
+
+```
+USER: "Remove Job 2 from the batch"
+
+SKILL: "Removing Job 2 from batch.
+
+ALREADY-DISCOVERED EXPERIENCES:
+- Will remain in library
+- Still available for other jobs in batch
+- Available for future batches
+
+BATCH UPDATED:
+- Jobs remaining: {N-1}
+- Job 2 files will be moved to archive (not deleted)
+
+Continue with remaining jobs? (Y/N)"
+```
+
+### Edge Case 5: Library Update Conflicts
+
+**Scenario:** User approves Job 1 resume, rejects Job 2, wants to revise Job 3
+
+**Handling:**
+
+```
+"You've approved some jobs but not others.
+
+LIBRARY UPDATE OPTIONS:
+
+1. INDIVIDUAL APPROVAL (recommended)
+   - Add Job 1 to library now ✓
+   - Job 2 won't be added ✗
+   - Job 3 pending revision (decide after changes)
+
+2. BATCH APPROVAL (wait)
+   - Update library only when all jobs finalized
+   - Ensures consistency across batch
+
+3. SELECTIVE APPROVAL
+   - Choose which jobs to add now
+   - Which experiences to integrate
+
+Recommendation: Option 1 (individual approval)
+
+Your preference? (1/2/3)"
+```
+
+### Edge Case 6: Batch Processing Interrupted
+
+**Scenario:** User stops mid-batch, connection drops, or session ends
+
+**Auto-Save Behavior:**
+
+After each major milestone, auto-save batch state:
+- After each job completes
+- After discovery phase
+- After gap analysis
+- After user checkpoints
+
+**Resume Instructions:**
+
+```
+"Your batch processing was interrupted.
+
+SAVED STATE:
+- Batch ID: {batch_id}
+- Completed: Jobs 1, 2
+- In Progress: Job 3 (template approved, matching not started)
+- Pending: Jobs 4, 5
+
+To resume:
+- Say 'resume batch {batch_id}'
+- Or 'continue my batch'
+- Or provide batch ID when asked
+
+I'll pick up exactly where we left off."
+```
+
+### Edge Case 7: No Gaps Found
+
+**Scenario:** All jobs are well-covered by existing library (rare but possible)
+
+**Handling:**
+
+```
+"Gap analysis complete!
+
+COVERAGE SUMMARY:
+- Job 1: 92% coverage
+- Job 2: 89% coverage
+- Job 3: 87% coverage
+
+ALL GAPS ADDRESSABLE WITH EXISTING LIBRARY ✓
+
+No experience discovery needed - your library already covers these roles well.
+
+OPTIONS:
+1. SKIP DISCOVERY - Proceed directly to per-job processing (recommended)
+2. OPTIONAL DISCOVERY - Surface any additional experiences anyway
+3. REVIEW GAPS - See what small gaps exist
+
+Your preference? (1/2/3)"
+```
+
+### Error Recovery Principles
+
+1. **Never lose progress:** Auto-save batch state frequently
+2. **Partial success is success:** Some jobs completing is better than none
+3. **Transparent failures:** Always explain what went wrong and options
+4. **Graceful degradation:** Fall back to JD-only, single-job mode, or skip if needed
+5. **User control:** Always provide options, never force a path
+
+### Graceful Degradation Paths
+
+```
+Research fails → Fall back to JD-only analysis
+Library too small → Emphasize discovery phase
+WebSearch unavailable → Use cached data or skip research
+DOCX generation fails → Provide markdown only
+One job fails → Continue with others, revisit failed job later
+```
