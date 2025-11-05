@@ -22,6 +22,7 @@
 
 This Claude Code skill generates high-quality, tailored resumes optimized for specific job descriptions while maintaining factual integrity. It goes beyond simple keyword matching by:
 
+- **Multi-Job Batch Processing:** Process 3-5 similar jobs efficiently with shared experience discovery (NEW!)
 - **Deep Research:** Analyzes company culture, role requirements, and success profiles
 - **Experience Discovery:** Surfaces undocumented experiences through conversational branching interviews
 - **Smart Matching:** Uses confidence-scored content selection with transparent gap identification
@@ -89,6 +90,7 @@ Add your existing resumes in markdown format:
 
 ## Quick Start
 
+### Single Job Application
 **1. Invoke the skill in Claude Code:**
 ```
 "I want to apply for [Role] at [Company]. Here's the JD: [paste job description]"
@@ -108,15 +110,60 @@ Add your existing resumes in markdown format:
 - Full transparency on content matching
 - Option to revise or approve at each stage
 
+### Multiple Jobs (Batch Mode - NEW!)
+**1. Provide multiple job descriptions:**
+```
+"I want to apply for these 3 roles:
+1. [Company 1] - [Role]: [JD or URL]
+2. [Company 2] - [Role]: [JD or URL]
+3. [Company 3] - [Role]: [JD or URL]"
+```
+
+**2. The skill will:**
+1. Detect multi-job intent and offer batch mode
+2. Build library once (shared across all jobs)
+3. Analyze gaps across ALL jobs (deduplicates common requirements)
+4. Conduct single discovery session addressing all gaps
+5. Process each job individually (research + tailoring)
+6. Present all resumes for batch review
+
+**3. Time savings:**
+- Shared discovery session (ask once, not 3-5 times)
+- 11-27% faster than processing jobs sequentially
+- Same quality as single-job mode
+
 ## Files
 
-- `SKILL.md` - Main skill implementation
+### Core Implementation
+- `SKILL.md` - Main skill implementation with single-job and multi-job workflows
+- `multi-job-workflow.md` - Complete multi-job batch processing workflow
 - `research-prompts.md` - Company/role research templates
 - `matching-strategies.md` - Content scoring algorithms
 - `branching-questions.md` - Experience discovery patterns
+
+### Documentation
 - `README.md` - This file
+- `MARKETPLACE.md` - Marketplace listing information
+- `SUBMISSION_GUIDE.md` - Skill submission guidelines
+
+### Supporting Documentation (`docs/`)
+- `docs/schemas/` - Data structure schemas for batch processing
+  - `batch-state-schema.md` - Batch state tracking structure
+  - `job-schema.md` - Job object schema
+- `docs/plans/` - Design documents and implementation plans
+  - `2025-11-04-multi-job-resume-tailoring-design.md` - Multi-job feature design
+  - `2025-11-04-multi-job-implementation-summary.md` - Implementation summary
+- `docs/testing/` - Testing checklists
+  - `multi-job-test-checklist.md` - Comprehensive multi-job test cases
 
 ## Key Features
+
+**🚀 Multi-Job Batch Processing (NEW!)**
+- Process 3-5 similar jobs efficiently
+- Shared experience discovery (ask once, apply to all)
+- Aggregate gap analysis with deduplication
+- Time savings: 11-27% faster than sequential processing
+- Incremental batches (add more jobs later)
 
 **🔍 Deep Research**
 - Company culture and values
@@ -127,6 +174,7 @@ Add your existing resumes in markdown format:
 - Conversational experience surfacing
 - Dynamic follow-up questions
 - Surfaces undocumented work
+- Multi-job context awareness
 
 **🎯 Smart Matching**
 - Confidence-scored content selection
@@ -146,6 +194,7 @@ Add your existing resumes in markdown format:
 
 ## Architecture
 
+### Single-Job Workflow
 ```
 Phase 0: Library Build (always first)
    ↓
@@ -161,6 +210,25 @@ Phase 4: Generation (MD + DOCX + PDF + Report)
    ↓  [USER REVIEW]
 Phase 5: Library Update (Conditional)
 ```
+
+### Multi-Job Workflow (NEW!)
+```
+Phase 0: Intake & Batch Initialization
+   ↓
+Phase 1: Aggregate Gap Analysis (deduplicates across all jobs)
+   ↓
+Phase 2: Shared Experience Discovery (ask once, apply to all)
+   ↓
+Phase 3: Per-Job Processing (research + template + matching + generation for each)
+   ↓
+Phase 4: Batch Finalization (review all resumes, update library)
+```
+
+**Time Savings:**
+- 3 jobs: ~40 min vs ~45 min sequential (11% savings)
+- 5 jobs: ~55 min vs ~75 min sequential (27% savings)
+
+See `multi-job-workflow.md` for complete details.
 
 ## Design Philosophy
 
@@ -221,6 +289,44 @@ RESULT:
 - Generated resume showing initiative and diverse skills
 ```
 
+### Example 4: Multi-Job Batch (NEW!)
+
+```
+USER: "I want to apply for these 3 TPM roles:
+      1. Microsoft 1ES Principal PM
+      2. Google Cloud Senior TPM
+      3. AWS Container Services Senior PM"
+
+RESULT:
+- Detected multi-job mode, user confirmed
+- Built library once (29 resumes)
+- Gap analysis: 14 total gaps, 8 unique after deduplication
+- Shared discovery: 30-min session surfaced 5 new experiences
+  * Kubernetes CI/CD for nonprofits
+  * Azure migration for university lab
+  * Cross-functional leadership examples
+- Processed 3 jobs: 85%, 88%, 78% JD coverage
+- Time: 40 minutes vs 45 minutes sequential (11% savings)
+- All 3 resumes + batch summary generated
+```
+
+### Example 5: Incremental Batch Addition (NEW!)
+
+```
+WEEK 1: User processes 3 jobs (Microsoft, Google, AWS) in 40 minutes
+
+WEEK 2:
+USER: "I found 2 more jobs at Stripe and Meta. Add them to my batch?"
+
+RESULT:
+- Loaded existing batch with 5 previously discovered experiences
+- Incremental gap analysis: only 3 new gaps (vs 14 original)
+- Quick 10-min discovery session for new gaps only
+- Processed 2 additional jobs: 82%, 76% coverage
+- Time: 20 minutes (vs 30 if starting from scratch)
+- Total: 5 jobs, 8 experiences discovered
+```
+
 ## Usage Patterns
 
 **Internal role (same company):**
@@ -245,13 +351,8 @@ RESULT:
 
 ## Testing
 
-See Testing Guidelines section in SKILL.md
-
-**Run tests:**
-```bash
-cd ~/.claude/skills/resume-tailoring
-# Follow test procedures in SKILL.md Testing Guidelines section
-```
+### Single-Job Tests
+See Testing Guidelines section in SKILL.md (lines 1244-1320)
 
 **Key test scenarios:**
 - Happy path (full workflow)
@@ -260,6 +361,25 @@ cd ~/.claude/skills/resume-tailoring
 - Experience discovery value
 - Title reframing accuracy
 - Multi-format generation
+
+### Multi-Job Tests (NEW!)
+See `docs/testing/multi-job-test-checklist.md` for comprehensive test cases
+
+**Key multi-job scenarios:**
+- Happy path (3 similar jobs)
+- Diverse jobs (low overlap detection)
+- Incremental batch addition
+- Pause/resume functionality
+- Individual vs batch review
+- Express mode processing
+- Error handling and graceful degradation
+
+**Run tests:**
+```bash
+cd ~/.claude/skills/resume-tailoring
+# Single-job: Follow test procedures in SKILL.md Testing Guidelines section
+# Multi-job: Follow docs/testing/multi-job-test-checklist.md
+```
 
 ## Contributing
 
