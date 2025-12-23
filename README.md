@@ -1,5 +1,8 @@
 # Resume Tailoring Skill
 
+[![Run in Smithery](https://smithery.ai/badge/skills/varunr89)](https://smithery.ai/skills?ns=varunr89&utm_source=github&utm_medium=badge)
+
+
 > AI-powered resume generation that researches roles, surfaces undocumented experiences, and creates tailored resumes from your existing resume library.
 
 **Mission:** Your ability to get a job should be based on your experiences and capabilities, not on your resume writing skills.
