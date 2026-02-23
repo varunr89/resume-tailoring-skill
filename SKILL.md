@@ -9,6 +9,8 @@ description: Use when creating tailored resumes for job applications - researche
 
 Generates high-quality, tailored resumes optimized for specific job descriptions while maintaining factual integrity. Builds resumes around the holistic person by surfacing undocumented experiences through conversational discovery.
 
+This version is adapted for Codex environments (tool-agnostic research + local CLI document export).
+
 **Core Principle:** Truth-preserving optimization - maximize fit while maintaining factual integrity. Never fabricate experience, but intelligently reframe and emphasize relevant aspects.
 
 **Mission:** A person's ability to get a job should be based on their experiences and capabilities, not on their resume writing skills.
@@ -167,14 +169,14 @@ When multi-job mode is activated, see `multi-job-workflow.md` for complete workf
 
 2. **Scan for markdown files:**
    ```
-   Use Glob tool: pattern="*.md" path={resume_directory}
+   Use shell/file tools to list markdown files (e.g., rg --files {resume_directory} | rg '\.md$')
    Count files found
    Announce: "Building resume library... found {N} resumes"
    ```
 
 3. **Parse each resume:**
    For each resume file:
-   - Use Read tool to load content
+   - Load content using available file-read tools
    - Extract sections: roles, bullets, skills, education
    - Identify patterns: bullet structure, length, formatting
 
@@ -257,7 +259,7 @@ Extract: requirements, keywords, implicit preferences, red flags, role archetype
 
 **1.2 Company Research:**
 ```
-WebSearch queries:
+Use available web search/browsing tools:
 - "{company} mission values culture"
 - "{company} engineering blog"
 - "{company} recent news"
@@ -267,8 +269,8 @@ Synthesize: mission, values, business model, stage
 
 **1.3 Role Benchmarking:**
 ```
-WebSearch: "site:linkedin.com {job_title} {company}"
-WebFetch: Top 3-5 profiles
+Search: "site:linkedin.com {job_title} {company}"
+Open top 3-5 relevant profiles/pages and extract patterns
 Analyze: common backgrounds, skills, terminology
 
 If sparse results, try similar companies
@@ -746,10 +748,17 @@ Wait for user approval before generation.
 
 **4.2 DOCX Generation:**
 
-**Use document-skills:docx:**
+Use local CLI conversion tools in this order:
 
 ```
-REQUIRED SUB-SKILL: Use document-skills:docx
+Preferred:
+1) scripts/export_resume.py --input {resume.md} --formats docx
+2) pandoc {resume.md} -o {resume.docx}
+
+If no DOCX converter is available:
+- Continue with markdown output
+- Tell user DOCX export was skipped due missing dependencies
+```
 
 Create Word document with:
 - Professional fonts (Calibri 11pt body, 12pt headers)
@@ -760,13 +769,6 @@ Create Word document with:
 - Bold/italic emphasis (company names, titles, dates)
 - Page breaks if 2-page resume
 
-See docx skill documentation for:
-- Paragraph and TextRun structure
-- Numbering configuration for bullets
-- Heading levels and styles
-- Spacing and margins
-```
-
 **Output:** `{Name}_{Company}_{Role}_Resume.docx`
 
 **4.3 PDF Generation (Optional):**
@@ -774,9 +776,11 @@ See docx skill documentation for:
 **If user requests PDF:**
 
 ```
-OPTIONAL SUB-SKILL: Use document-skills:pdf
+Preferred:
+1) scripts/export_resume.py --input {resume.md} --formats pdf
+2) pandoc {resume.md} -o {resume.pdf} [with available PDF engine]
+3) soffice --headless --convert-to pdf {resume.docx}
 
-Convert DOCX to PDF OR generate directly
 Ensure formatting preservation
 Professional appearance for direct submission
 ```
@@ -1038,7 +1042,7 @@ Which approach?"
 
 **Edge Case 3: Research Phase Failures**
 ```
-SCENARIO: WebSearch fails, LinkedIn unavailable, company info sparse
+SCENARIO: Web research fails, LinkedIn unavailable, company info sparse
 
 HANDLING:
 "⚠️ Limited company research available.

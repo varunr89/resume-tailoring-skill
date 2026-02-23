@@ -20,7 +20,7 @@
 
 ## Overview
 
-This Claude Code skill generates high-quality, tailored resumes optimized for specific job descriptions while maintaining factual integrity. It goes beyond simple keyword matching by:
+This Codex skill generates high-quality, tailored resumes optimized for specific job descriptions while maintaining factual integrity. It goes beyond simple keyword matching by:
 
 - **Multi-Job Batch Processing:** Process 3-5 similar jobs efficiently with shared experience discovery (NEW!)
 - **Deep Research:** Analyzes company culture, role requirements, and success profiles
@@ -33,44 +33,55 @@ This Claude Code skill generates high-quality, tailored resumes optimized for sp
 
 ### Option 1: Install from GitHub (Recommended)
 
+Use the built-in Codex installer helper:
+
+```bash
+python3 ~/.codex/skills/.system/skill-installer/scripts/install-skill-from-github.py \
+  --repo varunr89/resume-tailoring-skill \
+  --ref master \
+  --path . \
+  --name resume-tailoring
+```
+
+Or install manually:
+
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/varunr89/resume-tailoring-skill.git ~/.claude/skills/resume-tailoring
+   git clone https://github.com/varunr89/resume-tailoring-skill.git ~/.codex/skills/resume-tailoring
    ```
 
 2. **Verify installation:**
    ```bash
-   ls ~/.claude/skills/resume-tailoring
+   ls ~/.codex/skills/resume-tailoring
    ```
    You should see: `SKILL.md`, `research-prompts.md`, `matching-strategies.md`, `branching-questions.md`, `README.md`
 
-3. **Restart Claude Code** (if already running)
+3. **Restart Codex** (if already running)
 
 ### Option 2: Manual Installation
 
 1. **Create the skill directory:**
    ```bash
-   mkdir -p ~/.claude/skills/resume-tailoring
+   mkdir -p ~/.codex/skills/resume-tailoring
    ```
 
 2. **Download the files:**
    - Download all files from this repository
-   - Place them in `~/.claude/skills/resume-tailoring/`
+   - Place them in `~/.codex/skills/resume-tailoring/`
 
 3. **Verify installation:**
-   - Open Claude Code
-   - Type `/skills` to see available skills
-   - `resume-tailoring` should appear in the list
+   - Open Codex
+   - Confirm `resume-tailoring` appears in your available skills list
 
 ## Prerequisites
 
 **Required:**
-- Claude Code with skills enabled
+- Codex with skills enabled
 - Existing resume library (at least 1-2 resumes in markdown format)
 
 **Optional but Recommended:**
-- WebSearch capability (for company research)
-- `document-skills` plugin (for DOCX/PDF generation)
+- Web access (for company research)
+- Local converters for DOCX/PDF generation (`pandoc` recommended; `soffice` optional)
 - 10+ resumes in your library for best results
 
 **Resume Library Setup:**
@@ -91,7 +102,7 @@ Add your existing resumes in markdown format:
 ## Quick Start
 
 ### Single Job Application
-**1. Invoke the skill in Claude Code:**
+**1. Invoke the skill in Codex:**
 ```
 "I want to apply for [Role] at [Company]. Here's the JD: [paste job description]"
 ```
@@ -376,7 +387,7 @@ See `docs/testing/multi-job-test-checklist.md` for comprehensive test cases
 
 **Run tests:**
 ```bash
-cd ~/.claude/skills/resume-tailoring
+cd ~/.codex/skills/resume-tailoring
 # Single-job: Follow test procedures in SKILL.md Testing Guidelines section
 # Multi-job: Follow docs/testing/multi-job-test-checklist.md
 ```
@@ -403,16 +414,16 @@ Contributions are welcome! Please follow these guidelines:
 ## Troubleshooting
 
 **Skill not appearing:**
-- Verify files are in `~/.claude/skills/resume-tailoring/`
-- Restart Claude Code
+- Verify files are in `~/.codex/skills/resume-tailoring/`
+- Restart Codex
 - Check SKILL.md has valid YAML frontmatter
 
 **Research phase failing:**
-- Check WebSearch capability is enabled
+- Check web access is enabled
 - Skill will gracefully fall back to JD-only analysis
 
 **DOCX/PDF generation failing:**
-- Ensure `document-skills` plugin is installed
+- Install `pandoc` and optionally LibreOffice (`soffice`) for fallback conversion
 - Skill will fall back to markdown-only output
 
 **Low match confidence:**
@@ -426,7 +437,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Acknowledgments
 
-- Built for Claude Code skills framework
+- Adapted for Codex skills framework
 - Designed with truth-preserving optimization principles
 - Inspired by the belief that job opportunities should be based on capabilities, not resume writing skills
 
