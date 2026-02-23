@@ -9,7 +9,9 @@ description: Use when creating tailored resumes for job applications - researche
 
 Generates high-quality, tailored resumes optimized for specific job descriptions while maintaining factual integrity. Builds resumes around the holistic person by surfacing undocumented experiences through conversational discovery.
 
-This version is adapted for Codex environments (tool-agnostic research + local CLI document export).
+This skill supports both Claude Code and Codex environments:
+- Claude Code path: native WebSearch/WebFetch + `document-skills` integrations
+- Codex path: tool-agnostic web research + local CLI document export
 
 **Core Principle:** Truth-preserving optimization - maximize fit while maintaining factual integrity. Never fabricate experience, but intelligently reframe and emphasize relevant aspects.
 
@@ -169,14 +171,16 @@ When multi-job mode is activated, see `multi-job-workflow.md` for complete workf
 
 2. **Scan for markdown files:**
    ```
-   Use shell/file tools to list markdown files (e.g., rg --files {resume_directory} | rg '\.md$')
+   Claude Code: Use Glob tool with pattern="*.md" path={resume_directory}
+   Codex: Use shell/file tools (e.g., rg --files {resume_directory} | rg '\.md$')
    Count files found
    Announce: "Building resume library... found {N} resumes"
    ```
 
 3. **Parse each resume:**
    For each resume file:
-   - Load content using available file-read tools
+   - Claude Code: Use Read tool to load content
+   - Codex: Load content using available file-read/shell tools
    - Extract sections: roles, bullets, skills, education
    - Identify patterns: bullet structure, length, formatting
 
@@ -259,7 +263,13 @@ Extract: requirements, keywords, implicit preferences, red flags, role archetype
 
 **1.2 Company Research:**
 ```
-Use available web search/browsing tools:
+Claude Code:
+- WebSearch: "{company} mission values culture"
+- WebSearch: "{company} engineering blog"
+- WebSearch: "{company} recent news"
+
+Codex:
+- Use available web search/browsing tools with equivalent queries:
 - "{company} mission values culture"
 - "{company} engineering blog"
 - "{company} recent news"
@@ -269,8 +279,14 @@ Synthesize: mission, values, business model, stage
 
 **1.3 Role Benchmarking:**
 ```
-Search: "site:linkedin.com {job_title} {company}"
-Open top 3-5 relevant profiles/pages and extract patterns
+Claude Code:
+- WebSearch: "site:linkedin.com {job_title} {company}"
+- WebFetch top 3-5 relevant profiles/pages
+
+Codex:
+- Search: "site:linkedin.com {job_title} {company}"
+- Open top 3-5 relevant profiles/pages and extract patterns
+
 Analyze: common backgrounds, skills, terminology
 
 If sparse results, try similar companies
@@ -748,14 +764,17 @@ Wait for user approval before generation.
 
 **4.2 DOCX Generation:**
 
-Use local CLI conversion tools in this order:
+Use environment-specific generation path:
 
 ```
-Preferred:
+Claude Code (preferred):
+1) REQUIRED SUB-SKILL: Use document-skills:docx
+
+Codex (preferred):
 1) scripts/export_resume.py --input {resume.md} --formats docx
 2) pandoc {resume.md} -o {resume.docx}
 
-If no DOCX converter is available:
+If no DOCX generation path is available:
 - Continue with markdown output
 - Tell user DOCX export was skipped due missing dependencies
 ```
@@ -776,7 +795,10 @@ Create Word document with:
 **If user requests PDF:**
 
 ```
-Preferred:
+Claude Code (preferred):
+1) OPTIONAL SUB-SKILL: Use document-skills:pdf
+
+Codex (preferred):
 1) scripts/export_resume.py --input {resume.md} --formats pdf
 2) pandoc {resume.md} -o {resume.pdf} [with available PDF engine]
 3) soffice --headless --convert-to pdf {resume.docx}
@@ -1042,7 +1064,7 @@ Which approach?"
 
 **Edge Case 3: Research Phase Failures**
 ```
-SCENARIO: Web research fails, LinkedIn unavailable, company info sparse
+SCENARIO: WebSearch/Web research fails, LinkedIn unavailable, company info sparse
 
 HANDLING:
 "⚠️ Limited company research available.
