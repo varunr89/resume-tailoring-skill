@@ -49,6 +49,10 @@ See supporting files:
 - `research-prompts.md` - Structured prompts for company/role research
 - `matching-strategies.md` - Content matching algorithms and scoring
 - `branching-questions.md` - Experience discovery conversation patterns
+- `scripts/prepare_resume_sources.py` - normalize source resumes and emit generated master library
+- `scripts/rank_project_library.py` - deterministic first-pass project ranking from structured catalog
+- `scripts/export_resume.py` - local markdown to DOCX/PDF converter
+- `scripts/render_pretty_resume.py` - styled HTML/PDF renderer for submission-ready resumes
 
 ## Workflow Details
 
@@ -167,20 +171,49 @@ When multi-job mode is activated, see `multi-job-workflow.md` for complete workf
    Validate directory exists
    ```
 
-2. **Scan for markdown files:**
+2. **Normalize source resumes first (if source PDFs exist):**
    ```
-   Use shell/file tools to list markdown files (e.g., rg --files {resume_directory} | rg '\.md$')
+   If resumes/source/*.pdf exists, run:
+   scripts/prepare_resume_sources.py \
+     --source-dir {resume_dir}/source \
+     --library-dir {resume_dir}/library \
+     --assets-dir {resume_dir}/assets
+
+   This produces:
+   - normalized markdown files in {resume_dir}/library
+   - extracted images in {resume_dir}/assets
+   - generated fallback library at {resume_dir}/library/MASTER_EXPERIENCE_LIBRARY.generated.md
+   - optional {resume_dir}/assets/profile_candidate.jpg
+   ```
+
+3. **Prefer a canonical master library file when present:**
+   ```
+   Prefer files in this order:
+   1) {resume_dir}/library/MASTER_EXPERIENCE_LIBRARY.md
+   2) {resume_dir}/library/MASTER_EXPERIENCE_LIBRARY.generated.md
+   3) {resume_dir}/library/PROJECT_EXPERIENCE_LIBRARY.json
+   4) {resume_dir}/library/PROJECT_EXPERIENCE_LIBRARY.md
+   5) all markdown files in {resume_dir}/library
+   6) all markdown files in {resume_dir}
+
+   If a canonical master file exists, use it as the primary source of truth and only consult raw extracts/source PDFs to resolve ambiguity or add new facts.
+   ```
+
+4. **Scan for markdown files if no canonical master exists:**
+   ```
+   Prefer {resume_dir}/library if present; else use {resume_dir}
+   Use shell/file tools to list markdown files (e.g., rg --files {path} | rg '\.md$')
    Count files found
    Announce: "Building resume library... found {N} resumes"
    ```
 
-3. **Parse each resume:**
+5. **Parse each resume:**
    For each resume file:
    - Load content using available file-read tools
    - Extract sections: roles, bullets, skills, education
    - Identify patterns: bullet structure, length, formatting
 
-4. **Build experience database structure:**
+6. **Build experience database structure:**
    ```json
    {
      "roles": [
@@ -326,6 +359,30 @@ Extract from library:
 - Role archetypes (technical contributor, manager, researcher, specialist)
 - Experience clusters (what domains/skills appear frequently)
 - Career progression and narrative
+```
+
+**2.1a Analyze Project Capability Library:**
+```
+If {resume_dir}/library/PROJECT_EXPERIENCE_LIBRARY.json exists, run:
+
+scripts/rank_project_library.py \
+  --catalog {resume_dir}/library/PROJECT_EXPERIENCE_LIBRARY.json \
+  --job-file {job_summary_or_jd_file} \
+  --top 6 \
+  --output {output_dir}/{Company}_{Role}_ProjectShortlist.md
+
+If JSON does not exist, fall back to {resume_dir}/library/PROJECT_EXPERIENCE_LIBRARY.md and rank manually.
+
+For each project, evaluate:
+- Technology overlap
+- Domain overlap
+- Delivery overlap (SDK, release ops, leadership, cross-functional work, testing)
+- Recency/strength of evidence
+
+Create a ranked shortlist:
+- Tier 1: must include if page space allows
+- Tier 2: supporting options
+- Tier 3: archive only
 ```
 
 **2.2 Role Consolidation Decision:**
@@ -556,7 +613,14 @@ Let me know for each experience."
 1. **Extract all candidate bullets from library**
    - All bullets from library database
    - All newly discovered experiences
+   - Ranked projects from `PROJECT_EXPERIENCE_LIBRARY.json` / shortlist output when present
+   - Project-specific facts from `PROJECT_EXPERIENCE_LIBRARY.md` when present
    - Include source resume for each
+
+1.5 **Rank projects before final bullet selection**
+   - Pick 3-6 projects that best match the JD
+   - Prefer exact technology/domain matches over generic tenure bullets
+   - For 1-page resumes, remove lower-relevance projects even if they are strong in isolation
 
 2. **Score each candidate** (see matching-strategies.md)
    - Direct match (40%): Keywords, domain, technology, outcome
@@ -689,6 +753,11 @@ Wait for user approval before generation.
 
 **4.1 Markdown Generation:**
 
+**Naming rules for final resume text:**
+- Never include internal repository names, package names, branch names, or filesystem names in the resume unless the user explicitly asks for them.
+- Convert internal identifiers into human-readable employer/project labels.
+- Use employer names, product names, and human-readable project descriptions only.
+
 **Compile mapped content into clean markdown:**
 
 ```markdown
@@ -777,13 +846,21 @@ Create Word document with:
 
 ```
 Preferred:
-1) scripts/export_resume.py --input {resume.md} --formats pdf
-2) pandoc {resume.md} -o {resume.pdf} [with available PDF engine]
-3) soffice --headless --convert-to pdf {resume.docx}
+1) scripts/render_pretty_resume.py --input-md {resume.md}
+   (defaults to {resume.html} + {resume.pdf}, no "_pretty" suffix)
+2) scripts/export_resume.py --input {resume.md} --formats pdf
+3) pandoc {resume.md} -o {resume.pdf} [with available PDF engine]
+4) soffice --headless --convert-to pdf {resume.docx}
 
 Ensure formatting preservation
 Professional appearance for direct submission
 ```
+
+**One-page constraint (when requested):**
+- Keep the resume to one page maximum by trimming lower-priority bullets/projects.
+- Verify page count after generation:
+  - macOS: `mdls -name kMDItemNumberOfPages {resume.pdf}`
+  - Linux: `pdfinfo {resume.pdf}` (if available)
 
 **Output:** `{Name}_{Company}_{Role}_Resume.pdf`
 
