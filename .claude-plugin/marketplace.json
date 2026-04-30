@@ -1,0 +1,9 @@
+{
+  "name": "resume-tailoring",
+  "description": "Tailored resumes with company research, branching experience discovery, and multi-format output",
+  "version": "1.0.0",
+  "author": { "name": "Varun R" },
+  "repository": "https://github.com/varunr89/resume-tailoring-skill",
+  "license": "MIT",
+  "source": "./skills/resume-tailoring"
+}
