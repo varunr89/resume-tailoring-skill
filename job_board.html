@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ioana — Job Application Board</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    background: #f0f2f5;
+    color: #1a1a2e;
+    min-height: 100vh;
+  }
+
+  header {
+    background: #1a1a2e;
+    color: #fff;
+    padding: 20px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  }
+  header h1 { font-size: 1.2rem; font-weight: 600; letter-spacing: 0.02em; }
+  header span { font-size: 0.85rem; opacity: 0.6; }
+
+  .stats {
+    display: flex;
+    gap: 16px;
+    padding: 20px 32px 0;
+  }
+  .stat {
+    background: #fff;
+    border-radius: 8px;
+    padding: 12px 20px;
+    font-size: 0.82rem;
+    color: #555;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  }
+  .stat strong { display: block; font-size: 1.4rem; color: #1a1a2e; margin-bottom: 2px; }
+
+  .board {
+    display: flex;
+    gap: 16px;
+    padding: 20px 32px 40px;
+    overflow-x: auto;
+    align-items: flex-start;
+  }
+
+  .column {
+    background: #e4e6ea;
+    border-radius: 12px;
+    min-width: 260px;
+    width: 260px;
+    flex-shrink: 0;
+    padding: 12px;
+  }
+
+  .column-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 4px 12px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #555;
+  }
+  .column-header .dot {
+    width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+  }
+  .column-header .count {
+    margin-left: auto;
+    background: rgba(0,0,0,0.12);
+    border-radius: 10px;
+    padding: 1px 7px;
+    font-size: 0.72rem;
+  }
+
+  .cards { display: flex; flex-direction: column; gap: 10px; min-height: 40px; }
+
+  .card {
+    background: #fff;
+    border-radius: 10px;
+    padding: 14px 14px 12px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    cursor: default;
+    transition: box-shadow 0.15s;
+    border-left: 4px solid transparent;
+  }
+  .card:hover { box-shadow: 0 3px 10px rgba(0,0,0,0.12); }
+
+  .card-company {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #888;
+    margin-bottom: 4px;
+  }
+  .card-role {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #1a1a2e;
+    margin-bottom: 6px;
+    line-height: 1.3;
+  }
+  .card-salary {
+    font-size: 0.78rem;
+    color: #555;
+    margin-bottom: 10px;
+  }
+  .card-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 12px; }
+  .tag {
+    font-size: 0.68rem;
+    padding: 2px 7px;
+    border-radius: 4px;
+    background: #f0f2f5;
+    color: #555;
+    font-weight: 500;
+  }
+  .tag.cv-ready { background: #e8f4e8; color: #2d7a2d; }
+  .tag.strong-fit { background: #fff3e0; color: #e65100; }
+
+  .card-links { display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap; }
+  .card-links a {
+    font-size: 0.72rem;
+    color: #0563C1;
+    text-decoration: none;
+    padding: 2px 8px;
+    border: 1px solid #d0dff5;
+    border-radius: 4px;
+    background: #f5f8ff;
+  }
+  .card-links a:hover { background: #e0ebff; }
+
+  .status-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  .status-btn {
+    font-size: 0.68rem;
+    padding: 3px 9px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    background: #f8f8f8;
+    color: #555;
+    cursor: pointer;
+    transition: all 0.12s;
+    font-weight: 500;
+  }
+  .status-btn:hover { border-color: #aaa; background: #f0f0f0; }
+  .status-btn.active { font-weight: 700; }
+
+  .status-btn[data-status="to_apply"].active   { background: #e8edf5; color: #3a5a8a; border-color: #3a5a8a; }
+  .status-btn[data-status="applied"].active    { background: #fff8e1; color: #b8860b; border-color: #b8860b; }
+  .status-btn[data-status="interview"].active  { background: #e8f0fe; color: #1a73e8; border-color: #1a73e8; }
+  .status-btn[data-status="offer"].active      { background: #e6f4ea; color: #1e7e34; border-color: #1e7e34; }
+  .status-btn[data-status="rejected"].active   { background: #fce8e6; color: #c5221f; border-color: #c5221f; }
+
+  /* Column accent colours by status */
+  .col-to_apply   .column-header .dot { background: #3a5a8a; }
+  .col-applied    .column-header .dot { background: #b8860b; }
+  .col-interview  .column-header .dot { background: #1a73e8; }
+  .col-offer      .column-header .dot { background: #1e7e34; }
+  .col-rejected   .column-header .dot { background: #c5221f; }
+
+  .col-to_apply   .card { border-left-color: #3a5a8a; }
+  .col-applied    .card { border-left-color: #b8860b; }
+  .col-interview  .card { border-left-color: #1a73e8; }
+  .col-offer      .card { border-left-color: #1e7e34; }
+  .col-rejected   .card { border-left-color: #c5221f; }
+
+  .empty-col {
+    font-size: 0.78rem;
+    color: #aaa;
+    text-align: center;
+    padding: 16px 0;
+    font-style: italic;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Ioana Criclevit — Job Application Tracker</h1>
+  <span id="last-updated"></span>
+</header>
+
+<div class="stats">
+  <div class="stat"><strong id="stat-total">0</strong>Total</div>
+  <div class="stat"><strong id="stat-to_apply">0</strong>To Apply</div>
+  <div class="stat"><strong id="stat-applied">0</strong>Applied</div>
+  <div class="stat"><strong id="stat-interview">0</strong>Interview</div>
+  <div class="stat"><strong id="stat-offer">0</strong>Offer</div>
+  <div class="stat"><strong id="stat-rejected">0</strong>Rejected</div>
+</div>
+
+<div class="board" id="board"></div>
+
+<script>
+const STATUSES = [
+  { id: "to_apply",  label: "To Apply" },
+  { id: "applied",   label: "Applied" },
+  { id: "interview", label: "Interview" },
+  { id: "offer",     label: "Offer" },
+  { id: "rejected",  label: "Rejected" },
+];
+
+const JOBS = [
+  {
+    id: "wise_staff_data_analyst",
+    company: "Wise",
+    role: "Staff Data Analyst, Operations",
+    salary: "£105,000 – £150,000",
+    tags: ["CV Ready", "Strong Fit"],
+    links: [
+      { label: "Job Posting", url: "https://wise.jobs/job/staff-data-analyst-operations-in-london-jid-3036" },
+      { label: "CV (MD)", url: "output/Ioana_Criclevit_Wise_Staff_Data_Analyst_Resume.md" },
+      { label: "CV (PDF)", url: "output/Ioana_Criclevit_Wise_Staff_Data_Analyst_Resume.pdf" },
+      { label: "Report", url: "output/Ioana_Criclevit_Wise_Staff_Data_Analyst_Resume_Report.md" },
+    ],
+    defaultStatus: "applied",
+  },
+  {
+    id: "ravio_insights_analyst",
+    company: "Ravio",
+    role: "Insights Analyst",
+    salary: "£50,000 – £65,000",
+    tags: ["CV Ready", "Strong Fit"],
+    links: [
+      { label: "Job Posting", url: "https://jobs.ashbyhq.com/ravio" },
+      { label: "CV (MD)", url: "output/Ioana_Criclevit_Ravio_Insights_Analyst_Resume.md" },
+      { label: "CV (PDF)", url: "output/Ioana_Criclevit_Ravio_Insights_Analyst_Resume.pdf" },
+      { label: "Report", url: "output/Ioana_Criclevit_Ravio_Insights_Analyst_Resume_Report.md" },
+    ],
+    defaultStatus: "applied",
+  },
+  {
+    id: "fca_financial_crime_sda",
+    company: "FCA",
+    role: "Financial Crime Senior Data Analyst",
+    salary: "£59,200 – £73,800",
+    tags: ["CV Ready", "Strong Fit"],
+    links: [
+      { label: "Job Posting", url: "https://fca.wd3.myworkdayjobs.com/en-US/FCA_Careers/job/London/Financial-Crime-Senior-Data-Analyst_JR0021455-1" },
+      { label: "CV (MD)", url: "output/Ioana_Criclevit_FCA_Financial_Crime_Senior_Data_Analyst_Resume.md" },
+      { label: "CV (PDF)", url: "output/Ioana_Criclevit_FCA_Financial_Crime_Senior_Data_Analyst_Resume.pdf" },
+      { label: "Report", url: "output/Ioana_Criclevit_FCA_Financial_Crime_Senior_Data_Analyst_Resume_Report.md" },
+    ],
+    defaultStatus: "to_apply",
+  },
+  {
+    id: "zopa_fraud_financial_crime",
+    company: "Zopa Bank",
+    role: "Data Analyst — Fraud & Financial Crime",
+    salary: "~£55,000 – £70,000",
+    tags: ["CV Ready"],
+    links: [
+      { label: "Job Posting", url: "https://www.efinancialcareers.co.uk/jobs-United_Kingdom-London-Data_Analyst_-_Fraud__Financial_Crime.id23749895" },
+      { label: "CV (MD)", url: "output/Ioana_Criclevit_Zopa_Data_Analyst_Fraud_Financial_Crime_Resume.md" },
+      { label: "CV (PDF)", url: "output/Ioana_Criclevit_Zopa_Data_Analyst_Fraud_Financial_Crime_Resume.pdf" },
+      { label: "Report", url: "output/Ioana_Criclevit_Zopa_Data_Analyst_Fraud_Financial_Crime_Resume_Report.md" },
+    ],
+    defaultStatus: "to_apply",
+  },
+  {
+    id: "zopa_lending_ops",
+    company: "Zopa Bank",
+    role: "Senior Analyst, Lending Operations",
+    salary: "~£55,000 – £70,000",
+    tags: ["CV Ready"],
+    links: [
+      { label: "Job Posting", url: "https://www.welcometothejungle.com/en/companies/zopa/jobs/senior-analyst-lending-operations_london_psvuwfcs" },
+      { label: "CV (MD)", url: "output/Ioana_Criclevit_Zopa_Senior_Analyst_Lending_Operations_Resume.md" },
+      { label: "CV (PDF)", url: "output/Ioana_Criclevit_Zopa_Senior_Analyst_Lending_Operations_Resume.pdf" },
+      { label: "Report", url: "output/Ioana_Criclevit_Zopa_Senior_Analyst_Lending_Operations_Resume_Report.md" },
+    ],
+    defaultStatus: "to_apply",
+  },
+  {
+    id: "monzo_senior_data_analyst",
+    company: "Monzo",
+    role: "Senior Data Analyst",
+    salary: "~£60,000 – £80,000",
+    tags: ["CV Ready"],
+    links: [
+      { label: "Careers Page", url: "https://monzo.com/careers" },
+      { label: "CV (MD)", url: "output/Ioana_Criclevit_Monzo_Senior_Data_Analyst_Financial_Health_Resume.md" },
+      { label: "CV (PDF)", url: "output/Ioana_Criclevit_Monzo_Senior_Data_Analyst_Financial_Health_Resume.pdf" },
+      { label: "Report", url: "output/Ioana_Criclevit_Monzo_Senior_Data_Analyst_Financial_Health_Resume_Report.md" },
+    ],
+    defaultStatus: "to_apply",
+  },
+];
+
+// Load state from localStorage
+function loadState() {
+  try {
+    return JSON.parse(localStorage.getItem("job_board_state") || "{}");
+  } catch { return {}; }
+}
+
+function saveState(state) {
+  localStorage.setItem("job_board_state", JSON.stringify(state));
+  document.getElementById("last-updated").textContent =
+    "Last updated: " + new Date().toLocaleTimeString();
+}
+
+function getStatus(state, jobId, defaultStatus) {
+  return state[jobId] || defaultStatus;
+}
+
+function renderBoard() {
+  const state = loadState();
+  const board = document.getElementById("board");
+  board.innerHTML = "";
+
+  const columns = {};
+  STATUSES.forEach(s => { columns[s.id] = []; });
+  JOBS.forEach(job => {
+    const status = getStatus(state, job.id, job.defaultStatus);
+    columns[status].push(job);
+  });
+
+  // Update stats
+  let total = JOBS.length;
+  document.getElementById("stat-total").textContent = total;
+  STATUSES.forEach(s => {
+    document.getElementById("stat-" + s.id).textContent = columns[s.id].length;
+  });
+
+  STATUSES.forEach(s => {
+    const col = document.createElement("div");
+    col.className = `column col-${s.id}`;
+
+    const header = document.createElement("div");
+    header.className = "column-header";
+    header.innerHTML = `<span class="dot"></span>${s.label}<span class="count">${columns[s.id].length}</span>`;
+    col.appendChild(header);
+
+    const cards = document.createElement("div");
+    cards.className = "cards";
+
+    if (columns[s.id].length === 0) {
+      const empty = document.createElement("div");
+      empty.className = "empty-col";
+      empty.textContent = "No applications";
+      cards.appendChild(empty);
+    }
+
+    columns[s.id].forEach(job => {
+      const card = document.createElement("div");
+      card.className = "card";
+      card.dataset.jobId = job.id;
+
+      const tagsHtml = job.tags.map(t => {
+        const cls = t === "CV Ready" ? "tag cv-ready" : t === "Strong Fit" ? "tag strong-fit" : "tag";
+        return `<span class="${cls}">${t}</span>`;
+      }).join("");
+
+      const linksHtml = job.links.map(l =>
+        `<a href="${l.url}" target="_blank" rel="noopener">${l.label}</a>`
+      ).join("");
+
+      const statusBtnsHtml = STATUSES.map(st =>
+        `<button class="status-btn${st.id === s.id ? " active" : ""}" data-status="${st.id}" data-job="${job.id}">${st.label}</button>`
+      ).join("");
+
+      card.innerHTML = `
+        <div class="card-company">${job.company}</div>
+        <div class="card-role">${job.role}</div>
+        <div class="card-salary">${job.salary}</div>
+        ${tagsHtml ? `<div class="card-tags">${tagsHtml}</div>` : ""}
+        <div class="card-links">${linksHtml}</div>
+        <div class="status-buttons">${statusBtnsHtml}</div>
+      `;
+      cards.appendChild(card);
+    });
+
+    col.appendChild(cards);
+    board.appendChild(col);
+  });
+
+  // Attach button listeners
+  document.querySelectorAll(".status-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const jobId = btn.dataset.job;
+      const newStatus = btn.dataset.status;
+      const state = loadState();
+      state[jobId] = newStatus;
+      saveState(state);
+      renderBoard();
+    });
+  });
+}
+
+document.getElementById("last-updated").textContent =
+  "Last updated: " + new Date().toLocaleTimeString();
+
+renderBoard();
+</script>
+</body>
+</html>

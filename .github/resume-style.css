@@ -1,0 +1,205 @@
+/* Professional Resume Styling for PDF Output */
+
+:root {
+  --primary-color: #1a3a52;
+  --secondary-color: #2d5a8c;
+  --text-color: #333333;
+  --light-gray: #f5f5f5;
+  --border-color: #cccccc;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 11pt;
+  line-height: 1.4;
+  color: var(--text-color);
+  background: white;
+}
+
+body {
+  padding: 0;
+  margin: 0;
+}
+
+/* Headers */
+h1 {
+  font-size: 20pt;
+  font-weight: 700;
+  color: var(--primary-color);
+  margin-top: 0;
+  margin-bottom: 4pt;
+  border-bottom: 2px solid var(--primary-color);
+  padding-bottom: 8pt;
+}
+
+h2 {
+  font-size: 13pt;
+  font-weight: 700;
+  color: var(--primary-color);
+  margin-top: 12pt;
+  margin-bottom: 6pt;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 4pt;
+}
+
+h3 {
+  font-size: 11pt;
+  font-weight: 700;
+  color: var(--secondary-color);
+  margin-top: 8pt;
+  margin-bottom: 4pt;
+}
+
+h4 {
+  font-size: 10pt;
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+/* Paragraphs & Lists */
+p {
+  margin: 4pt 0;
+  text-align: justify;
+}
+
+ul, ol {
+  margin: 4pt 0 4pt 20pt;
+  padding-left: 0;
+}
+
+li {
+  margin: 2pt 0;
+  line-height: 1.5;
+}
+
+strong {
+  font-weight: 700;
+  color: var(--secondary-color);
+}
+
+em {
+  font-style: italic;
+}
+
+/* Contact Information */
+.contact-info {
+  text-align: center;
+  margin-bottom: 8pt;
+  font-size: 10pt;
+}
+
+/* Horizontal Rule */
+hr {
+  border: none;
+  border-top: 1px solid var(--border-color);
+  margin: 8pt 0;
+}
+
+/* Links */
+a {
+  color: var(--secondary-color);
+  text-decoration: none;
+  word-break: break-word;
+}
+
+a:visited {
+  color: var(--secondary-color);
+}
+
+/* Section Spacing */
+section {
+  margin-bottom: 12pt;
+}
+
+/* Job Title & Company */
+.job-title {
+  font-weight: 700;
+  color: var(--primary-color);
+}
+
+.company {
+  font-weight: 600;
+  color: var(--secondary-color);
+}
+
+.dates {
+  float: right;
+  color: #666666;
+  font-size: 10pt;
+}
+
+/* Skills Display */
+.skills-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12pt;
+  margin: 8pt 0;
+}
+
+.skill-group {
+  break-inside: avoid;
+}
+
+.skill-group strong {
+  display: block;
+  margin-bottom: 2pt;
+  color: var(--primary-color);
+}
+
+/* Code & Technical */
+code {
+  font-family: 'Courier New', monospace;
+  background-color: var(--light-gray);
+  padding: 2pt 4pt;
+  border-radius: 3pt;
+  font-size: 10pt;
+}
+
+/* Print Optimization */
+@media print {
+  body {
+    margin: 0;
+    padding: 0;
+  }
+  
+  h1, h2, h3 {
+    page-break-after: avoid;
+  }
+  
+  ul, ol {
+    page-break-inside: avoid;
+  }
+  
+  li {
+    page-break-inside: avoid;
+  }
+  
+  section {
+    page-break-inside: avoid;
+  }
+  
+  a {
+    text-decoration: underline;
+  }
+}
+
+/* Responsive adjustments */
+@media screen and (max-width: 768px) {
+  html, body {
+    font-size: 12pt;
+  }
+  
+  h1 {
+    font-size: 18pt;
+  }
+  
+  h2 {
+    font-size: 12pt;
+  }
+}
