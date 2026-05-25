@@ -1,0 +1,96 @@
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 9.5pt;
+  color: #1a1a2e;
+  margin: 0;
+  padding: 0;
+  line-height: 1.55;
+}
+
+h1 {
+  font-size: 22pt;
+  font-weight: bold;
+  color: #1a1a2e;
+  margin: 0 0 5px 0;
+  padding: 0;
+}
+
+h2 {
+  font-size: 10.5pt;
+  font-weight: bold;
+  color: #1a1a2e;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border-bottom: 0.5px solid #cccccc;
+  margin: 24px 0 7px 0;
+  padding-bottom: 4px;
+}
+
+h3 {
+  font-size: 10.5pt;
+  font-weight: bold;
+  color: #1a1a2e;
+  margin: 16px 0 1px 0;
+}
+
+/* Role meta line — company · location · dates */
+h3 + p {
+  color: #555555;
+  font-size: 9pt;
+  margin: 0 0 6px 0;
+  line-height: 1.4;
+}
+
+h3 + p strong {
+  font-weight: normal;
+  color: #555555;
+}
+
+p {
+  margin: 0 0 6px 0;
+  font-size: 9.5pt;
+  color: #1a1a2e;
+}
+
+ul {
+  margin: 4px 0 8px 0;
+  padding-left: 20px;
+}
+
+li {
+  font-size: 9.5pt;
+  color: #1a1a2e;
+  margin-bottom: 5px;
+  line-height: 1.5;
+}
+
+a {
+  color: #0563C1;
+  text-decoration: underline;
+}
+
+hr {
+  display: none;
+}
+
+strong {
+  font-weight: bold;
+  color: #1a1a2e;
+}
+
+em {
+  color: #555555;
+}
+
+/* Contact / summary line directly under h1 */
+h1 + p {
+  font-size: 9pt;
+  color: #555555;
+  margin-bottom: 14px;
+  line-height: 1.4;
+}
+
+@page {
+  size: A4;
+  margin: 1.4cm 1.8cm;
+}

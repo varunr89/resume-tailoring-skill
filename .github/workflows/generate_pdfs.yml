@@ -1,0 +1,54 @@
+name: Generate CV PDFs
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'output/**_Resume.md'
+      - 'output/generate_pdfs.py'
+      - '.github/workflows/generate_pdfs.yml'
+  workflow_dispatch:
+
+jobs:
+  build-pdfs:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Python dependencies
+        run: pip install reportlab
+
+      - name: Generate CV PDFs
+        run: python3 output/generate_pdfs.py
+
+      - name: Upload PDFs as workflow artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: cv-pdfs
+          path: output/*.pdf
+          retention-days: 30
+
+      - name: Commit PDFs back to repo
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add output/*.pdf
+          if git diff --cached --quiet; then
+            echo "No PDF changes to commit."
+          else
+            git commit -m "chore: regenerate CV PDFs [skip ci]"
+            git push origin HEAD:master
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
